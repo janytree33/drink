@@ -27,9 +27,13 @@ export default function App() {
   // 🔄 [DB 데이터 가공 함수] drinks 테이블에서 받은 데이터를
   //    기존 컴포넌트가 원하는 형태(drinks 배열 + drinkDetails 객체)로 변환
   // -----------------------------------------
-  const processDrinksData = useCallback((drinksData) => {
-    // 1. 음료 이름만 뽑아서 순서대로 배열 만들기
-    const drinkNames = drinksData.map((d) => d.name);
+const processDrinksData = useCallback((drinksData) => {
+    // 1. 음료 이름만 뽑아서 가나다순으로 똑똑하게 정렬하기
+    const drinkNames = drinksData.map((d) => d.name).sort((a, b) => {
+      if (a === "직접입력") return 1;  // '직접입력'은 무조건 맨 아래로!
+      if (b === "직접입력") return -1;
+      return a.localeCompare(b, "ko"); // 나머지는 완벽한 가나다순 정렬
+    });
 
     // 2. 각 음료의 상세 정보를 { 이름: {emoji, image, iceOnly, hasCaffeine} } 형태로 변환
     const details = {};
