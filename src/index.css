@@ -1,0 +1,44 @@
+/* Tailwind CSS의 핵심 스타일 규칙들을 이 파일에 주입합니다. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  초보자도 알기 쉬운 추가 스타일:
+  글로벌 전체 화면 배경과 글꼴(Font)을 깔끔하고 트렌디하게 잡아줍니다.
+*/
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Segoe UI Emoji', sans-serif;
+  background-color: #f8fafc; /* 부드러운 파스텔 그레이/블루 톤의 은은한 배경색 */
+  color: #1e293b;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 아름답게 눈이 내리는 듯한 애니메이션 효과를 위한 배경 스타일 */
+.snow-bg {
+  background-color: #dbeafe; /* 연한 블루 겨울 테마 */
+  background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                    radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                    radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 20px);
+  background-size: 550px 550px, 350px 350px, 250px 250px;
+  background-position: 0 0, 40px 60px, 130px 270px;
+}
+
+/* 스크롤바 커스텀 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
