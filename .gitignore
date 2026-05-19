@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# 🔑 Supabase 비밀 키 파일 (절대 GitHub에 올리면 안 됩니다!)
+.env
+.env.local
+.env.production
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

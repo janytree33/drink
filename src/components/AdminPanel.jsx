@@ -62,8 +62,8 @@ export default function AdminPanel({
         <h3 className="text-lg font-extrabold text-slate-800 tracking-tight">
           제니트리 관리자 설정
         </h3>
-        <span className="text-[10px] text-slate-400 font-bold bg-white px-2 py-0.5 rounded border border-slate-200">
-          실시간 로컬 세이브
+        <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+          ☁️ 실시간 DB 동기화
         </span>
       </div>
 
@@ -273,8 +273,8 @@ export default function AdminPanel({
       </div>
 
       {/* 보안 알림 안내 가이드 */}
-      <div className="mt-6 p-4 bg-yellow-50 rounded-2xl border border-yellow-100 text-[10px] text-yellow-800 leading-relaxed font-medium">
-        <strong>💡 초보자 개발자 안내:</strong> 본 어드민 설정은 사장님의 로컬 저장 장치에 즉시 반영되며, 신메뉴 등록 및 사진 주소 교체 데이터는 <em>LocalStorage</em> 기술로 평생 안전히 유지되어 다른 직원들이 투표할 때에도 100% 동일하게 공유 적용됩니다.
+      <div className="mt-6 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-[10px] text-emerald-800 leading-relaxed font-medium">
+        <strong>☁️ Supabase 실시간 DB 안내:</strong> 관리자가 음료를 추가/수정/삭제하면 <em>즉시 Supabase 데이터베이스에 반영</em>됩니다. 새로고침 없이도 모든 직원의 화면에 동일한 최신 데이터가 공유됩니다!
       </div>
 
     </div>
