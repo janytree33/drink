@@ -8,7 +8,7 @@ export default function VisualMenu({ drinks, drinkDetails }) {
   const visualDrinks = drinks.filter((d) => d !== "직접입력");
 
   return (
-    <div className="bg-gradient-to-b from-blue-50/90 to-indigo-100/90 backdrop-blur-md p-6 rounded-[32px] border border-white/50 shadow-lg text-center select-none h-full flex flex-col items-center justify-between min-h-[750px] relative overflow-hidden">
+    <div className="bg-gradient-to-b from-blue-50/90 to-indigo-100/90 backdrop-blur-md p-6 rounded-[32px] border border-white/50 shadow-lg text-center select-none h-full flex flex-col items-center relative overflow-y-auto">
       
       {/* ❄️ 감성적인 배경 눈송이 장식들 */}
       <div className="absolute top-4 left-4 text-white/40 text-lg animate-bounce duration-1000">❄️</div>

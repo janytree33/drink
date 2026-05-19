@@ -48,25 +48,32 @@ export default function App() {
 
   // -----------------------------------------
   // 🌱 [초기 데이터 심기] DB가 비어있을 때, defaultData.js의 기본값으로 채우기
+  // ✅ upsert 방식: 이미 같은 이름이 있으면 건너뛰므로 중복이 절대 발생하지 않습니다!
   // -----------------------------------------
   const seedInitialDrinks = useCallback(async () => {
     // INITIAL_DRINKS 배열을 DB에 넣을 수 있는 형태로 변환
     const drinksToInsert = INITIAL_DRINKS.map((name, index) => ({
       name,
-      emoji:       DRINK_DETAILS[name]?.emoji       || "🥤",
-      image:       DRINK_DETAILS[name]?.image       || "",
-      ice_only:    DRINK_DETAILS[name]?.iceOnly     || false,
-      has_caffeine:DRINK_DETAILS[name]?.hasCaffeine || false,
-      sort_order:  index, // 기존 순서 그대로 유지
+      emoji:        DRINK_DETAILS[name]?.emoji       || "🥤",
+      image:        DRINK_DETAILS[name]?.image       || "",
+      ice_only:     DRINK_DETAILS[name]?.iceOnly     || false,
+      has_caffeine: DRINK_DETAILS[name]?.hasCaffeine || false,
+      sort_order:   index, // 기존 순서 그대로 유지
     }));
 
-    const { error } = await supabase.from("drinks").insert(drinksToInsert);
+    // upsert: name이 이미 있으면 UPDATE(무시), 없으면 INSERT
+    const { error } = await supabase
+      .from("drinks")
+      .upsert(drinksToInsert, { onConflict: "name", ignoreDuplicates: true });
     if (error) console.error("🌱 초기 음료 데이터 삽입 오류:", error.message);
   }, []);
 
   const seedInitialMembers = useCallback(async () => {
     const membersToInsert = INITIAL_MEMBERS.map((name) => ({ name }));
-    const { error } = await supabase.from("members").insert(membersToInsert);
+    // upsert: name이 이미 있으면 무시, 없으면 INSERT
+    const { error } = await supabase
+      .from("members")
+      .upsert(membersToInsert, { onConflict: "name", ignoreDuplicates: true });
     if (error) console.error("🌱 초기 멤버 데이터 삽입 오류:", error.message);
   }, []);
 
