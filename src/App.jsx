@@ -20,6 +20,13 @@ export default function App() {
   const [drinkDetails, setDrinkDetails] = useState({});    // 음료 상세 정보 (이모지, 사진 등)
   const [votes, setVotes]               = useState([]);     // 투표 내역
   const [isAdminOpen, setIsAdminOpen]   = useState(false); // 관리자 패널 열림/닫힘
+
+  // -----------------------------------------
+  // 🔐 [관리자 비밀번호 모달] 상태 정의
+  // -----------------------------------------
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false); // 비밀번호 입력창 열림/닫힘
+  const [passwordInput, setPasswordInput]             = useState("");    // 사용자가 입력 중인 비밀번호 (실제 값)
+  const [passwordError, setPasswordError]             = useState(false); // 비밀번호 틀렸을 때 빨간 경고 표시
   const [isLoading, setIsLoading]       = useState(true);  // 📡 DB 데이터 불러오는 중 상태
   const [dbError, setDbError]           = useState(null);  // ❌ DB 오류 메시지
 
@@ -366,11 +373,144 @@ const processDrinksData = useCallback((drinksData) => {
     );
   }
 
+  // -----------------------------------------
+  // 🔐 [비밀번호 확인 함수]
+  //    비유: 관리자실 문에 붙어있는 잠금장치!
+  //    맞는 열쇠(비밀번호)를 넣으면 열리고, 틀리면 경보음(경고 메시지)
+  // -----------------------------------------
+  const ADMIN_PASSWORD = "janytree_admin"; // 관리자 비밀번호 (실제 서비스에선 환경변수로 관리 권장)
+
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
+    if (passwordInput === ADMIN_PASSWORD) {
+      // ✅ 비밀번호 일치 → 모달 닫고, 관리자 패널 열기!
+      setIsPasswordModalOpen(false);
+      setIsAdminOpen(true);
+      setPasswordInput(""); // 보안: 입력값 즉시 초기화
+      setPasswordError(false);
+    } else {
+      // ❌ 비밀번호 불일치 → 빨간 경고 표시
+      setPasswordError(true);
+      setPasswordInput(""); // 틀렸으니 입력값 초기화해서 다시 입력하게
+    }
+  };
+
+  // -----------------------------------------
+  // 🎭 [커스텀 마스킹 표시 함수]
+  //    비유: 타이핑하는 내용을 첫 글자빼고 나머지는 점(●)으로 가리는 효과!
+  //    실제 저장된 값(passwordInput)은 그대로 있고, 화면에 보이는 것만 가립니다.
+  // -----------------------------------------
+  const getMaskedDisplay = (value) => {
+    if (value.length === 0) return "";           // 아무것도 안 쳤으면 빈 값
+    if (value.length === 1) return value;        // 딱 1글자면 그대로 보여주기
+    return value[0] + "●".repeat(value.length - 1); // 첫 글자 + 나머지는 ●●●
+  };
+
   return (
     <div className="min-h-screen w-full bg-slate-50 text-slate-800 antialiased relative">
       
       {/* ❄️ 눈송이 글로벌 배경 레이어 */}
       <div className="absolute inset-0 snow-bg pointer-events-none z-0"></div>
+
+      {/* =========================================
+          🔐 [비밀번호 입력 모달] 관리자 인증 팝업창
+          - 어두운 반투명 뒷배경 + 가운데 흰색 카드 형태
+          - 모달 바깥쪽 클릭하면 자동으로 닫힘
+          ========================================= */}
+      {isPasswordModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => {
+            // 모달 바깥 어두운 영역 클릭 시 닫기
+            setIsPasswordModalOpen(false);
+            setPasswordInput("");
+            setPasswordError(false);
+          }}
+        >
+          {/* 모달 카드 본체 (클릭 이벤트 전파 차단 - 카드 안 클릭해도 닫히지 않게) */}
+          <div
+            className="bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 w-full max-w-sm mx-4 animate-fadeIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 자물쇠 아이콘 + 제목 */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span className="text-3xl">🔐</span>
+              </div>
+              <h2 className="text-base font-black text-slate-900">관리자 인증</h2>
+              <p className="text-xs text-slate-500 mt-1">관리자 비밀번호를 입력해 주세요.</p>
+            </div>
+
+            {/* 비밀번호 입력 폼 */}
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="relative">
+                {/* 
+                  💡 핵심 마스킹 트릭 설명:
+                  - 실제 input은 투명(opacity-0)하게 깔아두고, 실제 타이핑은 여기서 받습니다.
+                  - 그 위에 보여주는 div에는 getMaskedDisplay()로 가공된 텍스트를 표시합니다.
+                  - 이렇게 하면 "첫 글자만 보이고 나머지는 ●"인 효과를 만들 수 있어요!
+                */}
+                {/* 보여주는 가짜 입력창 (실제 타이핑 X, 마스킹된 텍스트만 표시) */}
+                <div
+                  className={`w-full bg-slate-50 border-2 rounded-2xl px-4 py-3 text-sm font-mono font-bold text-slate-800 tracking-widest min-h-[48px] flex items-center ${
+                    passwordError
+                      ? "border-red-400 bg-red-50"
+                      : "border-slate-200 focus-within:border-slate-800"
+                  }`}
+                >
+                  {passwordInput.length === 0 ? (
+                    <span className="text-slate-300 font-sans font-normal tracking-normal text-xs">비밀번호 입력...</span>
+                  ) : (
+                    <span>{getMaskedDisplay(passwordInput)}</span>
+                  )}
+                </div>
+
+                {/* 실제 입력을 받는 진짜 input (투명하게 위에 겹쳐있음) */}
+                <input
+                  type="text"
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    setPasswordError(false); // 타이핑 시작하면 빨간 경고 해제
+                  }}
+                  autoFocus
+                  autoComplete="off"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-text"
+                  maxLength={30}
+                />
+              </div>
+
+              {/* 비밀번호 오류 경고 메시지 */}
+              {passwordError && (
+                <p className="text-xs text-red-500 font-bold text-center animate-fadeIn">
+                  ❌ 비밀번호가 올바르지 않습니다. 다시 입력해 주세요.
+                </p>
+              )}
+
+              {/* 확인 / 취소 버튼 */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordInput("");
+                    setPasswordError(false);
+                  }}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs py-3 rounded-xl transition-all"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm"
+                >
+                  🔓 확인
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* 메인 전체 레이아웃 바디 */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-6 md:py-10 space-y-8">
@@ -402,14 +542,24 @@ const processDrinksData = useCallback((drinksData) => {
           {/* 우측 관리용 설정 토글 버튼 및 리셋 */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsAdminOpen(!isAdminOpen)}
+              onClick={() => {
+                if (isAdminOpen) {
+                  // 이미 열려있으면 그냥 닫기 (비밀번호 재확인 불필요)
+                  setIsAdminOpen(false);
+                } else {
+                  // 닫혀있으면 비밀번호 모달 열기
+                  setPasswordInput("");
+                  setPasswordError(false);
+                  setIsPasswordModalOpen(true);
+                }
+              }}
               className={`text-xs font-bold px-4 py-2 rounded-xl border transition-all shadow-sm ${
                 isAdminOpen 
                   ? "bg-slate-800 text-white border-slate-800 hover:bg-slate-900" 
                   : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              {isAdminOpen ? "⚙️ 관리 설정 닫기" : "⚙️ 관리 설정 열기"}
+              {isAdminOpen ? "⚙️ 관리 설정 닫기" : "🔒 관리 설정 열기"}
             </button>
             
             <button
